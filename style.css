@@ -1,0 +1,74 @@
+:root {
+    --primary-color: #3498db; --danger-color: #e74c3c; --light-gray: #f4f7f6;
+    --dark-gray: #333; --border-color: #e0e0e0; --success-color: #2ecc71;
+    --start-color: #f39c12; --doing-color: #3498db; --done-color: #27ae60;
+    --waiting-text-color: #8e8e8e; --notstarted-text-color: #333; --cancelled-color: #7f8c8d;
+}
+body { 
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+    margin: 0; 
+    background-color: var(--light-gray);
+}
+.container { max-width: 1600px; margin: 0 auto; padding: 20px; }
+.card { background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.05); padding: 25px; margin-top: 20px; }
+h1, h2 { color: #2c3e50; }
+.btn { padding: 8px 15px; border: 1px solid var(--border-color); border-radius: 5px; cursor: pointer; background-color: #fff; font-weight: 500; height: 37px; box-sizing: border-box; }
+.btn-success { background-color: var(--success-color); color: #fff; }
+.btn-secondary { background-color: #bdc3c7; color: #fff; }
+.btn-primary { background-color: var(--primary-color); color: #fff; }
+.btn.active { background-color: var(--primary-color); color: #fff; }
+
+/* === CSS CHO BIỂU ĐỒ GANTT === */
+#gantt-chart {
+    margin-top: 20px;
+    max-height: 450px;
+    overflow: auto; /* Tự động thêm cả 2 thanh cuộn khi cần */
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+}
+#gantt-chart .bar-label { font-weight: 500; fill: white; }
+.gantt-hoanthanh .bar { fill: var(--done-color); }
+.gantt-batdau .bar { fill: var(--start-color); }
+.gantt-dangthuchien .bar { fill: var(--doing-color); }
+.gantt-chuabatdau .bar { fill: #ccc; }
+.gantt-dangcho .bar { fill: var(--waiting-text-color); }
+.gantt-huybo .bar { fill: var(--cancelled-color); }
+.gantt-dummy-task { display: none; }
+
+/* === CSS CHO BẢNG === */
+.task-table-wrapper { 
+    margin-top: 20px; 
+    max-height: 500px; 
+    overflow: auto; /* Cuộn cả ngang và dọc cho BẢNG */
+}
+table { border-collapse: collapse; }
+th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color); }
+th { background-color: #f8f9fa; position: sticky; top: 0; z-index: 10; user-select: none; white-space: nowrap; }
+th.sortable { cursor: pointer; }
+th.sortable:hover { background-color: #e9ecef; }
+th.sortable span { color: var(--primary-color); }
+tr.filter-row th { top: 49px; }
+.filter-row input { width: 95%; padding: 6px; border: 1px solid #ccc; border-radius: 4px; }
+td.editable, .status-cell span, td.date-cell { cursor: pointer; }
+tbody tr { cursor: grab; transition: opacity 0.3s ease; }
+.sortable-ghost { background: #eaf2f8; }
+tr.blocked-task { opacity: 0.6; }
+tr.blocked-task td:first-child::before { content: '🔒'; margin-right: 8px; font-size: 0.9em; }
+
+/* === CSS CHO CÁC THÀNH PHẦN KHÁC === */
+.add-task-form, .date-filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; align-items: flex-end; padding-top: 15px; }
+.form-group { display: flex; flex-direction: column; }
+label { margin-bottom: 5px; font-size: 0.9em; color: #555; }
+input, select { padding: 8px; border: 1px solid var(--border-color); border-radius: 5px; width: 100%; box-sizing: border-box; height: 37px; }
+.btn-delete { color: var(--danger-color); font-weight: bold; cursor: pointer; border: none; background: none; font-size: 1.1em; }
+
+/* === CSS CHO NHÃN TRẠNG THÁI === */
+.status-cell { text-align: center; }
+.status { padding: 5px 12px; border-radius: 15px; font-size: 0.85em; font-weight: 600; display: inline-block; text-align: center; }
+.status-hoanthanh { background: var(--done-color); color: white; }
+.status-batdau { background: var(--start-color); color: white; }
+.status-dangthuchien { background: var(--doing-color); color: white; }
+.status-chuabatdau { background: white; color: var(--notstarted-text-color); border: 1px solid #ccc; }
+.status-dangcho { background: white; color: var(--waiting-text-color); border: 1px solid #ccc; }
+.status-huybo { background: var(--cancelled-color); color: white; text-decoration: line-through; }
+.controls { margin-top: 20px; display:flex; justify-content:space-between; align-items:center; }
