@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản Lý Công Việc</title>
     <link rel="stylesheet" href="style.css">
-    <!-- THÊM THƯ VIỆN CHART.JS -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
@@ -26,6 +25,8 @@
                     <input type="text" id="filter-id" placeholder="Lọc theo ID...">
                     <input type="text" id="filter-ten-task" placeholder="Lọc theo Tên Task...">
                     <select id="filter-du-an"><option value="">Tất cả Dự Án</option></select>
+                    <select id="filter-category"><option value="">Tất cả Danh mục</option></select>
+                    <select id="filter-type"><option value="">Tất cả Type</option></select>
                     <select id="filter-trang-thai">
                         <option value="">Tất cả Trạng Thái</option>
                         <option value="To Do">To Do</option><option value="In Progress">In Progress</option>
@@ -50,7 +51,6 @@
 
             <!-- BẢNG TỔNG HỢP -->
             <div id="summary-section">
-                <!-- Bảng tổng hợp theo Dự án & Trạng thái -->
                 <div class="summary-table-wrapper-full">
                     <h3>Tổng hợp theo Dự Án & Trạng Thái</h3>
                     <div class="summary-matrix-container">
@@ -61,19 +61,25 @@
                         </table>
                     </div>
                 </div>
-
-                <!-- BIỂU ĐỒ TỔNG HỢP THEO THÁNG (ĐÃ THAY ĐỔI) -->
                 <div class="summary-table-wrapper-full">
-                    <h3>Tổng hợp theo Tháng (Dựa trên Ngày Bắt Đầu)</h3>
+                    <h3>Trạng thái Task theo Tháng</h3>
                     <div class="chart-container">
                         <canvas id="monthly-chart"></canvas>
                     </div>
                 </div>
+
+                <!-- THAY ĐỔI: Gộp 2 biểu đồ thành 1 -->
+                <div class="summary-table-wrapper-full">
+                    <h3>Thống kê theo Danh mục (cột) và Type (đường)</h3>
+                    <div class="chart-container">
+                        <canvas id="combo-chart"></canvas>
+                    </div>
+                </div>
+                <!-- KẾT THÚC PHẦN THAY ĐỔI -->
             </div>
 
             <div id="loading">Đang tải dữ liệu...</div>
 
-            <!-- CÁC TAB LỌC NHANH -->
             <div id="quick-filter-tabs">
                 <button class="tab-btn active" data-filter="all">Tất cả</button>
                 <button class="tab-btn" data-filter="upcoming">Sắp tới deadline</button>
@@ -85,13 +91,13 @@
                     <thead>
                         <tr>
                             <th class="sortable" data-sort-key="ID">ID</th>
-                            <th class="sortable" data-sort-key="TenTask">Tên Task</th>
-                            <th class="sortable" data-sort-key="DuAn">Dự Án</th>
+                            <th class="sortable" data-sort-key="Task">Tên Task</th>
+                            <th class="sortable" data-sort-key="Project">Dự Án</th>
                             <th>Danh mục</th>
                             <th>Type</th>
-                            <th class="sortable" data-sort-key="NgayBatDau">Ngày Bắt Đầu</th>
-                            <th class="sortable" data-sort-key="Deadline">Deadline</th>
-                            <th class="sortable" data-sort-key="TrangThai">Trạng Thái</th>
+                            <th class="sortable" data-sort-key="Start">Ngày Bắt Đầu</th>
+                            <th class="sortable" data-sort-key="End">Deadline</th>
+                            <th class="sortable" data-sort-key="Status">Trạng Thái</th>
                             <th>Ghi Chú</th>
                             <th>Hành động</th>
                         </tr>
@@ -111,6 +117,8 @@
                 <input type="hidden" id="taskId">
                 <div class="form-group"><label for="tenTask">Tên Task</label><input type="text" id="tenTask" required></div>
                 <div class="form-group"><label for="duAn">Dự Án</label><input type="text" id="duAn" required></div>
+                <div class="form-group"><label for="danhMuc">Danh mục</label><input type="text" id="danhMuc"></div>
+                <div class="form-group"><label for="loaiTask">Type</label><input type="text" id="loaiTask"></div>
                 <div class="form-group"><label for="ngayBatDau">Ngày Bắt Đầu</label><input type="date" id="ngayBatDau"></div>
                 <div class="form-group"><label for="deadline">Deadline</label><input type="date" id="deadline"></div>
                 <div class="form-group"><label for="trangThai">Trạng Thái</label><select id="trangThai"><option value="To Do">To Do</option><option value="In Progress">In Progress</option><option value="Done">Done</option><option value="On Hold">On Hold</option><option value="Cancelled">Cancelled</option></select></div>
