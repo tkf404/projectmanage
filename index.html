@@ -3,84 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <title>Ứng Dụng Quản Lý Dự Án </title>
-
-    <!-- Liên kết đến file CSS bên ngoài -->
+    <title>Quản Lý Công Việc</title>
     <link rel="stylesheet" href="style.css">
-
-    <!-- Nhúng các thư viện cần thiết -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/frappe-gantt/0.6.1/frappe-gantt.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/frappe-gantt/0.6.1/frappe-gantt.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+    <!-- THÊM THƯ VIỆN CHART.JS -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
+
     <div class="container">
-        <h1>Bảng Điều Khiển Dự Án</h1>
-        <div class="card">
-            <h2>Thêm công việc</h2>
-            <form id="add-task-form" class="add-task-form">
-                <div class="form-group"><label>Dự án</label><input type="text" id="task-project" required list="project-list"></div>
-                <div class="form-group"><label>Task chính</label><input type="text" id="task-main" required></div>
-                <div class="form-group"><label>Sub-task</label><input type="text" id="task-sub"></div>
-                <div class="form-group"><label>Phụ thuộc (ID)</label><input type="number" id="task-deps" placeholder="Nhập ID..."></div>
-                <div class="form-group"><label>Ngày bắt đầu</label><input type="date" id="task-start"></div>
-                <div class="form-group"><label>Ngày kết thúc</label><input type="date" id="task-end"></div>
-                <button type="submit" class="btn btn-success">Thêm</button>
-                <datalist id="project-list"></datalist>
-            </form>
-        </div>
-        <div class="card">
-            <h2>Danh sách công việc & Biểu đồ Gantt</h2>
-            <div class="date-filters">
-                 <div class="form-group"><label>Lọc từ ngày</label><input type="date" id="filter-start-date"></div>
-                 <div class="form-group"><label>Đến ngày</label><input type="date" id="filter-end-date"></div>
-                 <button id="filter-btn" class="btn btn-primary">Lọc</button>
-                 <button id="reset-filter-btn" class="btn btn-secondary">Reset</button>
+        <header>
+            <h1>Danh Sách Chi Tiết Công Việc</h1>
+            <div class="header-actions">
+                <button id="reload-data-btn" class="btn btn-secondary">Tải lại dữ liệu</button>
+                <button id="add-task-btn" class="btn btn-primary">Thêm Task Mới</button>
             </div>
-            <div class="task-table-wrapper">
+        </header>
+
+        <main>
+            <!-- BỘ LỌC DỮ LIỆU -->
+            <div id="filter-controls">
+                <div class="filter-group">
+                    <input type="text" id="filter-id" placeholder="Lọc theo ID...">
+                    <input type="text" id="filter-ten-task" placeholder="Lọc theo Tên Task...">
+                    <select id="filter-du-an"><option value="">Tất cả Dự Án</option></select>
+                    <select id="filter-trang-thai">
+                        <option value="">Tất cả Trạng Thái</option>
+                        <option value="To Do">To Do</option><option value="In Progress">In Progress</option>
+                        <option value="Done">Done</option><option value="On Hold">On Hold</option>
+                        <option value="Cancelled">Cancelled</option>
+                    </select>
+                </div>
+                <div class="filter-group date-filters">
+                    <label>Ngày Bắt Đầu:</label>
+                    <input type="date" id="filter-ngay-bat-dau-start" title="Từ ngày"><span>-</span>
+                    <input type="date" id="filter-ngay-bat-dau-end" title="Đến ngày">
+                </div>
+                <div class="filter-group date-filters">
+                     <label>Deadline:</label>
+                    <input type="date" id="filter-deadline-start" title="Từ ngày"><span>-</span>
+                    <input type="date" id="filter-deadline-end" title="Đến ngày">
+                </div>
+                 <div class="filter-group">
+                    <button id="reset-filters-btn" class="btn btn-secondary">Xóa bộ lọc</button>
+                </div>
+            </div>
+
+            <!-- BẢNG TỔNG HỢP -->
+            <div id="summary-section">
+                <!-- Bảng tổng hợp theo Dự án & Trạng thái -->
+                <div class="summary-table-wrapper-full">
+                    <h3>Tổng hợp theo Dự Án & Trạng Thái</h3>
+                    <div class="summary-matrix-container">
+                        <table class="summary-table summary-matrix-table">
+                            <thead id="project-status-summary-head"></thead>
+                            <tbody id="project-status-summary-body"></tbody>
+                            <tfoot id="project-status-summary-foot"></tfoot>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- BIỂU ĐỒ TỔNG HỢP THEO THÁNG (ĐÃ THAY ĐỔI) -->
+                <div class="summary-table-wrapper-full">
+                    <h3>Tổng hợp theo Tháng (Dựa trên Ngày Bắt Đầu)</h3>
+                    <div class="chart-container">
+                        <canvas id="monthly-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div id="loading">Đang tải dữ liệu...</div>
+
+            <!-- CÁC TAB LỌC NHANH -->
+            <div id="quick-filter-tabs">
+                <button class="tab-btn active" data-filter="all">Tất cả</button>
+                <button class="tab-btn" data-filter="upcoming">Sắp tới deadline</button>
+                <button class="tab-btn" data-filter="today">Today Task</button>
+            </div>
+
+            <div class="table-container">
                 <table id="task-table">
                     <thead>
                         <tr>
-                            <th class="sortable" data-sort="project">Dự án <span></span></th>
-                            <th class="sortable" data-sort="id">ID <span></span></th>
-                            <th class="sortable" data-sort="task">Task <span></span></th>
-                            <th class="sortable" data-sort="subtask">Sub-task <span></span></th>
-                            <th class="sortable" data-sort="dependencies">Phụ thuộc <span></span></th>
-                            <th class="sortable" data-sort="start">Bắt đầu <span></span></th>
-                            <th class="sortable" data-sort="end">Kết thúc <span></span></th>
-                            <th class="sortable" data-sort="status">Trạng thái <span></span></th>
-                            <th class="sortable" data-sort="note">Ghi chú <span></span></th>
-                            <th>Xóa</th>
-                        </tr>
-                        <tr class="filter-row">
-                            <th><input data-filter="project" placeholder="Lọc..."></th>
-                            <th><input data-filter="id" placeholder="Lọc..."></th>
-                            <th><input data-filter="task" placeholder="Lọc..."></th>
-                            <th><input data-filter="subtask" placeholder="Lọc..."></th>
-                            <th><input data-filter="dependencies" placeholder="Lọc..."></th>
-                            <th></th><th></th>
-                            <th><input data-filter="status" placeholder="Lọc..."></th>
-                            <th><input data-filter="note" placeholder="Lọc..."></th>
-                            <th></th>
+                            <th class="sortable" data-sort-key="ID">ID</th>
+                            <th class="sortable" data-sort-key="TenTask">Tên Task</th>
+                            <th class="sortable" data-sort-key="DuAn">Dự Án</th>
+                            <th>Danh mục</th>
+                            <th>Type</th>
+                            <th class="sortable" data-sort-key="NgayBatDau">Ngày Bắt Đầu</th>
+                            <th class="sortable" data-sort-key="Deadline">Deadline</th>
+                            <th class="sortable" data-sort-key="TrangThai">Trạng Thái</th>
+                            <th>Ghi Chú</th>
+                            <th>Hành động</th>
                         </tr>
                     </thead>
                     <tbody id="task-table-body"></tbody>
                 </table>
             </div>
-            <div class="controls">
-                <span id="gantt-title">Chế độ xem Gantt</span>
-                <div>
-                    <button id="today-btn" class="btn">Hôm nay</button>
-                    <button class="btn view-btn active" data-view="Day">Ngày</button>
-                    <button class="btn view-btn" data-view="Week">Tuần</button>
-                    <button class="btn view-btn" data-view="Month">Tháng</button>
-                </div>
-            </div>
-            <div id="gantt-chart"></div>
+            <div id="pagination-container"></div>
+        </main>
+    </div>
+
+    <!-- Modal -->
+    <div id="task-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h2 id="modal-title">Thêm Task Mới</h2>
+            <form id="task-form">
+                <input type="hidden" id="taskId">
+                <div class="form-group"><label for="tenTask">Tên Task</label><input type="text" id="tenTask" required></div>
+                <div class="form-group"><label for="duAn">Dự Án</label><input type="text" id="duAn" required></div>
+                <div class="form-group"><label for="ngayBatDau">Ngày Bắt Đầu</label><input type="date" id="ngayBatDau"></div>
+                <div class="form-group"><label for="deadline">Deadline</label><input type="date" id="deadline"></div>
+                <div class="form-group"><label for="trangThai">Trạng Thái</label><select id="trangThai"><option value="To Do">To Do</option><option value="In Progress">In Progress</option><option value="Done">Done</option><option value="On Hold">On Hold</option><option value="Cancelled">Cancelled</option></select></div>
+                <div class="form-group"><label for="ghiChu">Ghi Chú</label><textarea id="ghiChu" rows="3"></textarea></div>
+                <div class="form-actions"><button type="button" id="cancel-btn" class="btn btn-secondary">Hủy</button><button type="submit" class="btn btn-primary">Lưu</button></div>
+            </form>
         </div>
     </div>
-    
+
     <script src="script.js"></script>
 </body>
 </html>
